@@ -99,8 +99,8 @@ int main() {
     // Kernels
     Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(bufH));
     a::WorkDivMembers<Dim1, Idx> grid(a::core::divCeil(c::size, c::blockSize), 1, c::blockSize);
-    a::exec<Acc<Dim1>>(queue, grid, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),
-                       c::multiplier);
+    a::exec<Acc1>(queue, grid, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),
+                  c::multiplier);
     a::wait(queue);
     Check<Buf1<Elem>, Elem>(buf2, [](Elem e) { return -2 * e; });
 }

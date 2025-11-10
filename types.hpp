@@ -22,24 +22,21 @@ using QueueHost = a::Queue<DevHost, a::Blocking>;
 template <typename TElem, typename TDim>
 using BufH = a::Buf<DevHost, TElem, TDim, Idx>;
 template <typename TElem>
-using Buf1H = a::Buf<DevHost, TElem, Dim1, Idx>;
+using Buf1H = BufH<TElem, Dim1>;
 
 template <typename TElem, typename TDim>
 using ViewH = a::ViewPlainPtr<DevHost, TElem, TDim, Idx>;
 template <typename TElem>
-using View1H = a::ViewPlainPtr<DevHost, TElem, Dim1, Idx>;
-
-// TODO: Add views for buffers?
-template <typename TElem, typename TDim>
-using ViewCH = a::ViewConst<std::decay_t<ViewH<TElem, TDim>>>;
-template <typename TElem>
-using ViewC1H = a::ViewConst<std::decay_t<View1H<TElem>>>;
+using View1H = ViewH<TElem, Dim1>;
 
 using Platform = a::PlatformCpu;
 using Device = a::DevCpu;
 using Queue = a::Queue<Device, a::NonBlocking>;
+
+template <typename TElem, typename TDim>
+using Buf = a::Buf<Device, TElem, TDim, Idx>;
 template <typename TElem>
-using Buf1 = a::Buf<Device, TElem, Dim1, Idx>;
+using Buf1 = Buf<TElem, Dim1>;
 
 #if defined(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED)
 template <typename TDim>
@@ -50,5 +47,7 @@ using Acc = alpaka::AccCpuTbbBlocks<TDim, Idx>;
 #else
 #error "Define one backend configuration"
 #endif
+
+using Acc1 = Acc<Dim1>;
 
 } // namespace alpakaTutorial
