@@ -52,6 +52,11 @@ using Buf = a::Buf<Device, TElem, TDim, Idx>;
 template <typename TElem>
 using Buf1 = Buf<TElem, Dim1>;
 
+template <typename TElem, typename TDim>
+using View = a::ViewPlainPtr<Device, TElem, TDim, Idx>;
+template <typename TElem>
+using View1 = View<TElem, Dim1>;
+
 using Acc1 = Acc<Dim1>;
 
 } // namespace alpakaTutorial
