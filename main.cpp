@@ -83,7 +83,7 @@ int main() {
     Check<Buf1<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queue);
 
     // Views + std::span
-    a::ViewPlainPtr<DevH, Elem, Dim1, Idx> viewH(std::data(bufH), devHost, a::getExtents(bufH));
+    View1H<Elem> viewH(std::data(bufH), devHost, a::getExtents(bufH));
     std::ranges::transform(std::span(std::data(viewH), a::getExtents(viewH).x()), std::data(viewH),
                            [](Elem e) { return e * e; });
     Check<Buf1<Elem>, Elem>(bufH, [](Elem e) { return 4 * e * e; }, queue);
@@ -91,8 +91,10 @@ int main() {
     // Constant views
     a::ViewConst<Buf1H<Elem>> viewCH(bufH);
     Check<a::ViewConst<Buf1H<Elem>>, Elem>(viewCH, [](Elem e) { return 4 * e * e; }, queue);
-    // The following line results in a compilation error
-    // cViewAcc[0] = -1;
+    // The following line gives an error
+    // viewCH[0] = -1;
+    View1H<const Elem> viewCH2(bufH.data(), alpaka::getDev(bufH), alpaka::getExtents(bufH));
+    Check<View1H<const Elem>, Elem>(viewCH2, [](Elem e) { return 4 * e * e; }, queue);
 
     // Kernels
     Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(bufH));
