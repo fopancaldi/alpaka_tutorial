@@ -45,11 +45,10 @@ foreach(X IN LISTS SUPPORTED_BACKENDS)
         endif()
     endif()
 endforeach()
+
 if(NOT ALPAKA_ACC_CONFIG)
     message(FATAL_ERROR "Define one backend configuration")
-endif()
-
-if(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
+elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
     link_libraries(tbb)
 endif()
 
