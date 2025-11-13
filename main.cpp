@@ -1,7 +1,6 @@
 #include "types.hpp"
 
 #include <algorithm>
-#include <concepts>
 #include <span>
 #include <utility>
 #include <vector>
