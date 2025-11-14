@@ -5,16 +5,16 @@
 #include <utility>
 #include <vector>
 
-namespace alpakaTutorial::constants {
+namespace alpaka_tutorial::constants {
 
 constexpr Idx size = 4;
 constexpr Idx blockSize = 2;
 constexpr Elem multiplier = -1;
 
-} // namespace alpakaTutorial::constants
+} // namespace alpaka_tutorial::constants
 
 namespace a = alpaka;
-namespace at = alpakaTutorial;
+namespace at = alpaka_tutorial;
 
 template <typename TBuf, typename TElem, typename Checker, typename TQueue>
     requires std::is_invocable_r_v<TElem, Checker, int>
@@ -57,21 +57,22 @@ int main() {
 
     // Platforms
     PlatformH platfHost;
+    assert(a::getDevCount(platfHost) > 0);
     DevH devHost = getDevByIdx(platfHost, 0);
     Platform platform;
     std::vector<Device> devices = a::getDevs(platform);
-    assert(a::getExtents(devices).x() == 1);
+    assert(a::getExtents(devices).x() > 0);
     Device device = devices.front();
 
     // Queues
-    QueueH queueH(device);
+    QueueH queueH(devHost);
     a::enqueue(queueH, []() { std::cout << "Queued work\n"; });
 
     // Buffers + std::span
-    Buf1H<Elem> bufH = alpaka::allocBuf<Elem, Idx>(device, c::size);
-    std::ranges::generate(std::span(std::data(bufH), getExtents(bufH).x()),
+    Buf1H<Elem> bufH = alpaka::allocBuf<Elem, Idx>(devHost, c::size);
+    std::ranges::generate(std::span(bufH.data(), getExtents(bufH).x()),
                           [i = 0]() mutable { return 2 * i++; });
-    Check<Buf1<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queueH);
+    Check<Buf1H<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queueH);
 
     // Events + memcpy + asynchronous allocation
     Queue queue(device);
@@ -80,24 +81,24 @@ int main() {
     a::Event<Queue> endMemcpy(device);
     a::enqueue(queue, endMemcpy);
     a::wait(endMemcpy);
-    Check<Buf1<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queue);
+    Check<Buf1<Elem>, Elem>(buf, [](Elem e) { return 2 * e; }, queue);
 
     // Views + std::span
-    View1H<Elem> viewH(std::data(bufH), devHost, a::getExtents(bufH));
-    std::ranges::transform(std::span(std::data(viewH), a::getExtents(viewH).x()), std::data(viewH),
+    View1H<Elem> viewH(bufH.data(), devHost, a::getExtents(bufH));
+    std::ranges::transform(std::span(viewH.data(), a::getExtents(viewH).x()), viewH.data(),
                            [](Elem e) { return e * e; });
-    Check<Buf1<Elem>, Elem>(bufH, [](Elem e) { return 4 * e * e; }, queue);
+    Check<Buf1H<Elem>, Elem>(bufH, [](Elem e) { return 4 * e * e; }, queueH);
 
     // Constant views
     a::ViewConst<Buf1H<Elem>> viewCH(bufH);
-    Check<a::ViewConst<Buf1H<Elem>>, Elem>(viewCH, [](Elem e) { return 4 * e * e; }, queue);
+    Check<a::ViewConst<Buf1H<Elem>>, Elem>(viewCH, [](Elem e) { return 4 * e * e; }, queueH);
     // The following line gives an error
     // viewCH[0] = -1;
-    View1H<const Elem> viewCH2(bufH.data(), alpaka::getDev(bufH), alpaka::getExtents(bufH));
-    Check<View1H<const Elem>, Elem>(viewCH2, [](Elem e) { return 4 * e * e; }, queue);
+    View1<const Elem> viewC(buf.data(), alpaka::getDev(buf), alpaka::getExtents(buf));
+    Check<View1<const Elem>, Elem>(viewC, [](Elem e) { return 2 * e; }, queue);
 
     // Kernels
-    Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(bufH));
+    Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
     a::WorkDivMembers<Dim1, Idx> grid(a::core::divCeil(c::size, c::blockSize), Idx{1},
                                       c::blockSize);
     a::exec<Acc1>(queue, grid, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),

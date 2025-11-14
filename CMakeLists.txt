@@ -20,17 +20,22 @@ string(
 string(
     APPEND
     CMAKE_CXX_FLAGS_DEBUG
-    " -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg"
+    # TODO: Understand why the address sanitizer does not behave well in the cnaf machine
+    # " -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg"
+    " -fno-omit-frame-pointer -g -pg"
 )
 string(
     APPEND
     CMAKE_EXE_LINKER_FLAGS_DEBUG
-    " -fsanitize=address,undefined -fno-omit-frame-pointer"
+    # TODO: See CMAKE_CXX_FLAGS_DEBUG
+    # " -fsanitize=address,undefined -fno-omit-frame-pointer"
+    " -fno-omit-frame-pointer"
 )
 
 set(SUPPORTED_BACKENDS
     ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
     ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
+    ALPAKA_ACC_GPU_CUDA_ENABLED
 )
 foreach(X IN LISTS SUPPORTED_BACKENDS)
     if(${X})
@@ -50,6 +55,19 @@ if(NOT ALPAKA_ACC_CONFIG)
     message(FATAL_ERROR "Define one backend configuration")
 elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
     link_libraries(tbb)
+elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_GPU_CUDA_ENABLED")
+    check_language(CUDA)
+    enable_language(CUDA)
+    set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CUDA_COMPILER})
+    if(NOT DEFINED CMAKE_CUDA_STANDARD)
+        set(CMAKE_CUDA_STANDARD 20)
+        set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    endif()
+    string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -lineinfo")
+
+    set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+    set(CMAKE_CUDA_ARCHITECTURES "50;60;61;62;70;80;90")
+    add_compile_options("--expt-relaxed-constexpr")
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -72,3 +90,11 @@ include_directories(${alpaka_SOURCE_DIR}/include)
 
 alpaka_add_executable(main main.cpp)
 alpaka_add_executable(indices indices.cpp)
+
+if(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_GPU_CUDA_ENABLED")
+    file(GLOB all_cpp *.cpp)
+    message("all_cpp = ${all_cpp}")
+    foreach(cpp_file IN LISTS all_cpp)
+        set_source_files_properties(${cpp_file} PROPERTIES LANGUAGE CUDA)
+    endforeach()
+endif()
