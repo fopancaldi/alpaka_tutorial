@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(alpaka_test VERSION 0.1.0 LANGUAGES CXX)
+project(alpaka_tutorial VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -71,3 +71,4 @@ endblock()
 include_directories(${alpaka_SOURCE_DIR}/include)
 
 alpaka_add_executable(main main.cpp)
+alpaka_add_executable(indices indices.cpp)
