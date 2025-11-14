@@ -31,6 +31,7 @@ int main() {
     assert(*(bufHostData + xExtent * yExtent - 1) == (-xExtent * yExtent + 1));
     assert((bufHost[a::Vec<a::DimInt<2>, Idx>(0, 0)] == *bufHostData));
     assert((bufHost[a::Vec<a::DimInt<2>, Idx>(0, 2)] == *(bufHostData + 2)));
+    assert((bufHost[a::Vec<a::DimInt<2>, Idx>(3, 0)] == *(bufHostData + 3 * xExtent)));
     assert((bufHost[a::Vec<a::DimInt<2>, Idx>(yExtent - 1, xExtent - 1)] ==
             *(bufHostData + xExtent * yExtent - 1)));
 
