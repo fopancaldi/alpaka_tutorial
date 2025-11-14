@@ -11,7 +11,7 @@ Should contain everything a new user should know.
 where `ALPAKA_ACC_CONFIG` is one of
 
 - `ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED`
-- `ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED` (requires Intel's [Thread Building Blocks (tbb)](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html))
+- `ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED` (requires Intel's [Thread Building Blocks](https://www.intel.com/content/www/us/en/developer/tools/oneapi/onetbb.html))
 - `ALPAKA_ACC_GPU_CUDA_ENABLED` (requires a [cuda](https://developer.nvidia.com/cuda-toolkit)-capable machine)
 
 # Dependencies
