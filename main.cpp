@@ -1,6 +1,7 @@
 #include "types.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <span>
 #include <utility>
 #include <vector>
