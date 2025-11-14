@@ -13,10 +13,10 @@ using Dim1 = a::DimInt<1>;
 using Dim2 = a::DimInt<2>;
 using Idx = uint32_t;
 
-template <typename TDim>
-using Vec = a::Vec<TDim, Idx>;
-using Vec1 = Vec<Dim1>;
-using Vec2 = Vec<Dim2>;
+template <typename TElem>
+using Vec1 = a::Vec<Dim1, TElem>;
+template <typename TElem>
+using Vec2 = a::Vec<Dim2, TElem>;
 
 using PlatformH = a::PlatformCpu;
 using DevH = a::DevCpu;
