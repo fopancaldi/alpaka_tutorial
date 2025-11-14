@@ -100,9 +100,9 @@ int main() {
 
     // Kernels
     Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
-    a::WorkDivMembers<Dim1, Idx> grid(a::core::divCeil(c::size, c::blockSize), Idx{1},
-                                      c::blockSize);
-    a::exec<Acc1>(queue, grid, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),
+    a::WorkDivMembers<Dim1, Idx> workDiv(a::core::divCeil(c::size, c::blockSize), Idx{1},
+                                         c::blockSize);
+    a::exec<Acc1>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),
                   c::multiplier);
     a::wait(queue);
     Check<Buf1<Elem>, Elem>(buf2, [](Elem e) { return -2 * e; }, queue);
