@@ -37,7 +37,7 @@ foreach(var IN LISTS supported_backend_flags)
     if(${${var}})
         if(NOT alpaka_acc_config)
             set(alpaka_acc_config ${var})
-            add_compile_definitions(${var})
+            add_compile_definitions(${${var}})
         else()
             message(
                 FATAL_ERROR
