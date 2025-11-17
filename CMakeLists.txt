@@ -20,7 +20,7 @@ string(
 string(
     APPEND
     CMAKE_CXX_FLAGS_DEBUG
-    " -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg"
+    " -fsanitize=address,undefined -fno-omit-frame-pointer -pg"
 )
 string(
     APPEND
