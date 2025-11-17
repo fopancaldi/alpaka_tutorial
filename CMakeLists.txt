@@ -20,28 +20,24 @@ string(
 string(
     APPEND
     CMAKE_CXX_FLAGS_DEBUG
-    # TODO: Understand why the address sanitizer does not behave well in the cnaf machine
-    # " -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg"
-    " -fno-omit-frame-pointer -g -pg"
+    " -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg"
 )
 string(
     APPEND
     CMAKE_EXE_LINKER_FLAGS_DEBUG
-    # TODO: See CMAKE_CXX_FLAGS_DEBUG
-    # " -fsanitize=address,undefined -fno-omit-frame-pointer"
-    " -fno-omit-frame-pointer"
+    " -fsanitize=address,undefined -fno-omit-frame-pointer"
 )
 
-set(SUPPORTED_BACKENDS
-    ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-    ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
-    ALPAKA_ACC_GPU_CUDA_ENABLED
-)
-foreach(X IN LISTS SUPPORTED_BACKENDS)
-    if(${X})
-        if(NOT ALPAKA_ACC_CONFIG)
-            set(ALPAKA_ACC_CONFIG ${X})
-            add_compile_definitions(${X})
+set(alpaka_serial_flag "ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED")
+set(alpaka_tbb_flag "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
+set(alpaka_cuda_flag "ALPAKA_ACC_GPU_CUDA_ENABLED")
+
+set(supported_backend_flags alpaka_serial_flag alpaka_tbb_flag alpaka_cuda_flag)
+foreach(var IN LISTS supported_backend_flags)
+    if(${${var}})
+        if(NOT alpaka_acc_config)
+            set(alpaka_acc_config ${var})
+            add_compile_definitions(${var})
         else()
             message(
                 FATAL_ERROR
@@ -51,11 +47,11 @@ foreach(X IN LISTS SUPPORTED_BACKENDS)
     endif()
 endforeach()
 
-if(NOT ALPAKA_ACC_CONFIG)
+if(NOT alpaka_acc_config)
     message(FATAL_ERROR "Define one backend configuration")
-elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
+elseif(alpaka_acc_config STREQUAL ${alpaka_tbb_flag})
     link_libraries(tbb)
-elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_GPU_CUDA_ENABLED")
+elseif(alpaka_acc_config STREQUAL ${alpaka_cuda_flag})
     check_language(CUDA)
     enable_language(CUDA)
     set(CMAKE_CUDA_HOST_COMPILER ${CMAKE_CUDA_COMPILER})
@@ -68,6 +64,23 @@ elseif(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_GPU_CUDA_ENABLED")
     set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
     set(CMAKE_CUDA_ARCHITECTURES "50;60;61;62;70;80;90")
     add_compile_options("--expt-relaxed-constexpr")
+endif()
+
+# TODO: Understand why the address sanitizer does not behave well in the cnaf machine
+if(alpaka_acc_config STREQUAL ${alpaka_cuda_flag})
+    foreach(
+        debug_flag
+        IN
+        ITEMS CMAKE_CXX_FLAGS_DEBUG CMAKE_EXE_LINKER_FLAGS_DEBUG
+    )
+        string(
+            REPLACE
+            " -fsanitize=address,undefined"
+            ""
+            ${debug_flag}
+            ${${debug_flag}}
+        )
+    endforeach()
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -91,7 +104,7 @@ include_directories(${alpaka_SOURCE_DIR}/include)
 alpaka_add_executable(main main.cpp)
 alpaka_add_executable(indices indices.cpp)
 
-if(ALPAKA_ACC_CONFIG STREQUAL "ALPAKA_ACC_GPU_CUDA_ENABLED")
+if(alpaka_acc_config STREQUAL ${alpaka_cuda_flag})
     file(GLOB all_cpp *.cpp)
     message("all_cpp = ${all_cpp}")
     foreach(cpp_file IN LISTS all_cpp)
