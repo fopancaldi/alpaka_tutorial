@@ -33,11 +33,11 @@ set(alpaka_tbb_flag "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
 set(alpaka_cuda_flag "ALPAKA_ACC_GPU_CUDA_ENABLED")
 
 set(supported_backend_flags alpaka_serial_flag alpaka_tbb_flag alpaka_cuda_flag)
-foreach(var IN LISTS supported_backend_flags)
-    if(${${var}})
+foreach(flag IN LISTS supported_backend_flags)
+    if(${${flag}})
         if(NOT alpaka_acc_config)
-            set(alpaka_acc_config ${var})
-            add_compile_definitions(${${var}})
+            set(alpaka_acc_config ${flag})
+            add_compile_definitions(${${flag}})
         else()
             message(
                 FATAL_ERROR
