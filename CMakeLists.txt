@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS ON)
 include(CheckLanguage)
 include(FetchContent)
 
+if(CMAKE_BUILD_TYPE STREQUAL "")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
 string(
     APPEND
     CMAKE_CXX_FLAGS
@@ -69,18 +73,8 @@ endif()
 
 # TODO: Understand why the address sanitizer does not behave well in the cnaf machine
 if(alpaka_acc_config STREQUAL ${alpaka_cuda_flag})
-    foreach(
-        debug_flag
-        IN
-        ITEMS CMAKE_CXX_FLAGS_DEBUG CMAKE_EXE_LINKER_FLAGS_DEBUG
-    )
-        string(
-            REPLACE
-            " -fsanitize=address,undefined"
-            ""
-            ${debug_flag}
-            ${${debug_flag}}
-        )
+    foreach(flags IN ITEMS CMAKE_CXX_FLAGS_DEBUG CMAKE_EXE_LINKER_FLAGS_DEBUG)
+        string(REPLACE " -fsanitize=address,undefined" "" ${flags} ${${flags}})
     endforeach()
 endif()
 
