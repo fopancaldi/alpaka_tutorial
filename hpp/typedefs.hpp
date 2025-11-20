@@ -6,8 +6,6 @@
 
 namespace alpaka_tutorial {
 
-namespace a = alpaka;
-
 using Dim0 = a::DimInt<0>;
 using Dim1 = a::DimInt<1>;
 using Dim2 = a::DimInt<2>;
