@@ -1,15 +1,13 @@
 #pragma once
 
 #include "alpaka/alpaka.hpp"
-#include <cstdint>
+#include "basic_typedefs.hpp"
+#include "config.hpp"
 
 namespace alpaka_tutorial {
 
 namespace a = alpaka;
 
-using Elem = int;
-
-using Idx = uint32_t;
 using Dim0 = a::DimInt<0>;
 using Dim1 = a::DimInt<1>;
 using Dim2 = a::DimInt<2>;
@@ -20,10 +18,6 @@ template <typename TElem>
 using Vec1 = a::Vec<Dim1, TElem>;
 template <typename TElem>
 using Vec2 = a::Vec<Dim2, TElem>;
-
-using PlatformH = a::PlatformCpu;
-using DevH = a::DevCpu;
-using QueueH = a::Queue<DevH, a::Blocking>;
 
 template <typename TElem, typename TDim>
 using BufH = a::Buf<DevH, TElem, TDim, Idx>;
@@ -42,31 +36,6 @@ template <typename TElem>
 using View1H = ViewH<TElem, Dim1>;
 template <typename TElem>
 using View2H = ViewH<TElem, Dim2>;
-
-#if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-using Platform = a::PlatformCpu;
-using Device = a::DevCpu;
-using Queue = a::Queue<Device, a::Blocking>;
-template <typename TDim>
-using Acc = a::AccCpuSerial<TDim, Idx>;
-
-#elif defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
-using Platform = a::PlatformCpu;
-using Device = a::DevCpu;
-using Queue = a::Queue<Device, a::Blocking>;
-template <typename TDim>
-using Acc = a::AccCpuTbbBlocks<TDim, Idx>;
-
-#elif defined ALPAKA_ACC_GPU_CUDA_ENABLED
-using Platform = a::PlatformCudaRt;
-using Device = a::DevCudaRt;
-using Queue = a::QueueCudaRtNonBlocking;
-template <typename TDim>
-using Acc = a::AccGpuCudaRt<TDim, Idx>;
-
-#else
-#error "Define one backend configuration"
-#endif
 
 template <typename TElem, typename TDim>
 using Buf = a::Buf<Device, TElem, TDim, Idx>;
@@ -87,12 +56,5 @@ template <typename TElem>
 using View2 = View<TElem, Dim2>;
 
 using Acc1 = Acc<Dim1>;
-
-namespace constants {
-
-constexpr Idx bufLength = 4;
-constexpr Idx blockSize = 2;
-
-} // namespace constants
 
 } // namespace alpaka_tutorial
