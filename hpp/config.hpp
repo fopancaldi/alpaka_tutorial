@@ -1,7 +1,8 @@
 #pragma once
 
-#include "alpaka/alpaka.hpp"
 #include "basic_typedefs.hpp"
+
+#include <alpaka/alpaka.hpp>
 
 namespace alpaka_tutorial {
 
