@@ -97,7 +97,6 @@ endblock()
 include_directories(${alpaka_SOURCE_DIR}/include)
 
 file(GLOB all_cpp ${CMAKE_SOURCE_DIR}/cpp/*.cpp)
-message("$all_cpp = ${all_cpp}")
 foreach(cpp_file IN LISTS all_cpp)
     block()
         cmake_path(REMOVE_EXTENSION cpp_file OUTPUT_VARIABLE cpp_file_noext)
