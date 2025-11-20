@@ -4,7 +4,7 @@
 
 namespace alpaka_tutorial::constants {
 
-constexpr Idx bufLength = 4;
-constexpr Idx blockSize = 2;
+constexpr Idx bufLength = 100;
+constexpr Idx blockSize = 16;
 
 } // namespace alpaka_tutorial::constants
