@@ -88,4 +88,11 @@ using View2 = View<TElem, Dim2>;
 
 using Acc1 = Acc<Dim1>;
 
+namespace constants {
+
+constexpr Idx bufLength = 4;
+constexpr Idx blockSize = 2;
+
+} // namespace constants
+
 } // namespace alpaka_tutorial

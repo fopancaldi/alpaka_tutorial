@@ -6,14 +6,6 @@
 #include <utility>
 #include <vector>
 
-namespace alpaka_tutorial::constants {
-
-constexpr Idx size = 4;
-constexpr Idx blockSize = 2;
-constexpr Elem multiplier = -1;
-
-} // namespace alpaka_tutorial::constants
-
 namespace a = alpaka;
 namespace at = alpaka_tutorial;
 
@@ -70,7 +62,7 @@ int main() {
     a::enqueue(queueH, []() { std::cout << "Queued work\n"; });
 
     // Buffers + std::span
-    Buf1H<Elem> bufH = alpaka::allocBuf<Elem, Idx>(devHost, c::size);
+    Buf1H<Elem> bufH = alpaka::allocBuf<Elem, Idx>(devHost, c::bufLength);
     std::ranges::generate(std::span(bufH.data(), getExtents(bufH).x()),
                           [i = 0]() mutable { return 2 * i++; });
     Check<Buf1H<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queueH);
@@ -100,10 +92,9 @@ int main() {
 
     // Kernels
     Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
-    a::WorkDivMembers<Dim1, Idx> workDiv(a::core::divCeil(c::size, c::blockSize), Idx{1},
+    a::WorkDivMembers<Dim1, Idx> workDiv(a::core::divCeil(c::bufLength, c::blockSize), Idx{1},
                                          c::blockSize);
-    a::exec<Acc1>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(),
-                  c::multiplier);
+    a::exec<Acc1>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(), -1);
     a::wait(queue);
     Check<Buf1<Elem>, Elem>(buf2, [](Elem e) { return -2 * e; }, queue);
 }
