@@ -40,14 +40,16 @@ a::WorkDivMembers<Dim1, Idx> MakeWorkDiv(Idx gridBlocks, Idx blockElements) {
 
 namespace internal {
 
-auto RoundUpRatio(std::integral auto num, std::integral auto den) { return (num + den - 1) / den; }
+auto RatioRoundedUp(std::integral auto num, std::integral auto den) {
+    return (num + den - 1) / den;
+}
 
 } // namespace internal
 
 template <typename TAcc>
     requires a::isAccelerator<TAcc>
 a::WorkDivMembers<Dim1, Idx> MakeWorkDiv(Idx elements) {
-    return MakeWorkDiv<TAcc>(internal::RoundUpRatio(elements, constants::blockSize), elements);
+    return MakeWorkDiv<TAcc>(internal::RatioRoundedUp(elements, constants::blockSize), elements);
 }
 
 } // namespace alpaka_tutorial
