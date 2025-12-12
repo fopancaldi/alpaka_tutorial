@@ -13,8 +13,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 
 string(
-    APPEND
-    CMAKE_CXX_FLAGS
+    APPEND CMAKE_CXX_FLAGS
     " -O2 -march=native -ftree-vectorize -funroll-loops -funsafe-math-optimizations"
     " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual"
     " -Wformat=2 -Wundef -Wshadow -Wcast-align -Wunused -Wnull-dereference"
@@ -22,13 +21,11 @@ string(
     " -Woverloaded-virtual -Wnon-virtual-dtor -Wold-style-cast"
 )
 string(
-    APPEND
-    CMAKE_CXX_FLAGS_DEBUG
+    APPEND CMAKE_CXX_FLAGS_DEBUG
     " -fsanitize=address,undefined -fno-omit-frame-pointer -pg"
 )
 string(
-    APPEND
-    CMAKE_EXE_LINKER_FLAGS_DEBUG
+    APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG
     " -fsanitize=address,undefined -fno-omit-frame-pointer"
 )
 
