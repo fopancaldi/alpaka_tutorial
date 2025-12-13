@@ -93,12 +93,12 @@ int main() {
     Check(queueHost, viewCH, [](Elem e) { return 4 * e * e; });
     // The following line gives an error
     // viewCH[0] = -1;
-    View1D<const Elem> viewC(buf.data(), a::getDev(buf), a::getExtents(buf));
+    View1D<Elem const> viewC(buf.data(), a::getDev(buf), a::getExtents(buf));
     Check(queueHost, viewC, [](Elem e) { return 2 * e; });
 
     // Kernels
     Buf1D<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
-    WorkDiv1D workDiv = MakeWorkDiv<Acc1D>(a::getExtents(buf));
+    WorkDiv1D const workDiv = MakeWorkDiv<Acc1D>(a::getExtents(buf));
     a::exec<Acc1D>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(), -1);
     a::wait(queue);
     Check(queue, buf2, [](Elem e) { return -2 * e; });
