@@ -84,7 +84,7 @@ include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 FetchContent_Declare(
     alpaka
     GIT_REPOSITORY https://github.com/alpaka-group/alpaka
-    GIT_TAG 2.0.0
+    GIT_TAG 2.1.0
 )
 set(alpaka_SOURCE_DIR "")
 block(PROPAGATE alpaka_SOURCE_DIR)
