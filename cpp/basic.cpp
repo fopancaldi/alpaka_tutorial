@@ -2,23 +2,30 @@
 
 #include <algorithm>
 #include <cassert>
-#include <span>
+#include <chrono>
+#include <concepts>
+#include <thread>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 namespace a = alpaka;
 namespace at = alpaka_tutorial;
 
-template <typename TBuf, typename TElem, typename Checker, typename TQueue>
-    requires std::is_invocable_r_v<TElem, Checker, int>
-ALPAKA_FN_HOST void Check(const TBuf& buf, Checker&& checker, TQueue& queue) {
-    at::PlatformH platfH;
-    at::DevH devH = a::getDevByIdx(platfH, 0);
-    at::Buf1H<TElem> bufH = a::allocBuf<TElem, at::Idx>(devH, a::getExtents(buf));
-    a::memcpy(queue, bufH, buf);
-    assert(std::ranges::all_of(
-        std::span(bufH.data(), a::getExtents(bufH).x()),
-        [&checker = std::as_const(checker), i = 0](TElem e) mutable { return e == checker(i++); }));
+template <noalpaka::concepts::Queue TQueue, at::concepts::Buffer TBuf, typename TCheckFn>
+    requires requires(TCheckFn f, int i) {
+        { f(i) } -> std::convertible_to<typename a::Elem<TBuf>>;
+    }
+ALPAKA_FN_HOST void Check(TQueue& queue, TBuf buf, TCheckFn&& checkFn) {
+    using Elem = std::remove_const_t<typename a::trait::ElemType<TBuf>::type>;
+
+    at::PlatformHost platfHost;
+    at::DevHost devHost = a::getDevByIdx(platfHost, 0);
+    at::BufH1D<Elem> bufHost = a::allocBuf<Elem, at::Idx>(devHost, a::getExtents(buf));
+    a::memcpy(queue, bufHost, buf);
+    assert(std::ranges::all_of(bufHost, [&checkFn = std::as_const(checkFn), i = 0](Elem e) mutable {
+        return e == checkFn(i++);
+    }));
 }
 
 // NOTICE: in a kernel:
@@ -29,9 +36,9 @@ ALPAKA_FN_HOST void Check(const TBuf& buf, Checker&& checker, TQueue& queue) {
 // - only c++ features up to c++20
 // - use alpaka::math, alpaka::atomic ..., alpaka::warp
 struct Kernel {
-    template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, const at::Elem* __restrict__ in, at::Elem* out,
-                                  at::Idx size, at::Elem multiplier) const {
+    template <at::concepts::Acc1D TAcc>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, at::Elem const* in, at::Elem* out, at::Idx size,
+                                  at::Elem multiplier) const {
         // In this kernel it is not necessary to use groups, since the number of blocks is chosen at
         // runtime in order to guarantee that all problem space is covered
         for (at::Idx groupIdx : a::uniformGroups(acc, size)) {
@@ -49,52 +56,50 @@ int main() {
     namespace c = constants;
 
     // Platforms
-    PlatformH platfHost;
+    PlatformHost platfHost;
     assert(a::getDevCount(platfHost) > 0);
-    DevH devHost = getDevByIdx(platfHost, 0);
+    DevHost devHost = getDevByIdx(platfHost, 0);
     Platform platform;
     std::vector<Device> devices = a::getDevs(platform);
     assert(a::getExtents(devices).x() > 0);
     Device device = devices.front();
 
     // Queues
-    QueueH queueH(devHost);
-    a::enqueue(queueH, []() { std::cout << "Queued work\n"; });
+    QueueHost queueHost(devHost);
+    a::enqueue(queueHost, []() { std::this_thread::sleep_for(std::chrono::seconds(1)); });
 
     // Buffers + std::span
-    Buf1H<Elem> bufH = alpaka::allocBuf<Elem, Idx>(devHost, c::bufLength);
-    std::ranges::generate(std::span(bufH.data(), getExtents(bufH).x()),
-                          [i = 0]() mutable { return 2 * i++; });
-    Check<Buf1H<Elem>, Elem>(bufH, [](Elem e) { return 2 * e; }, queueH);
+    BufH1D<Elem> bufH = a::allocBuf<Elem, Idx>(devHost, c::bufLength);
+    std::ranges::generate(bufH, [i = 0]() mutable { return 2 * i++; });
+    Check(queueHost, bufH, [](Elem e) { return 2 * e; });
 
     // Events + memcpy + asynchronous allocation
     Queue queue(device);
-    Buf1<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufH));
+    Buf1D<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufH));
     a::memcpy(queue, buf, bufH);
     a::Event<Queue> endMemcpy(device);
     a::enqueue(queue, endMemcpy);
     a::wait(endMemcpy);
-    Check<Buf1<Elem>, Elem>(buf, [](Elem e) { return 2 * e; }, queue);
+    Check(queue, buf, [](Elem e) { return 2 * e; });
 
     // Views + std::span
-    View1H<Elem> viewH(bufH.data(), devHost, a::getExtents(bufH));
+    ViewH1D<Elem> viewH(bufH.data(), a::getDev(bufH), a::getExtents(bufH));
     std::ranges::transform(std::span(viewH.data(), a::getExtents(viewH).x()), viewH.data(),
                            [](Elem e) { return e * e; });
-    Check<Buf1H<Elem>, Elem>(bufH, [](Elem e) { return 4 * e * e; }, queueH);
+    Check(queueHost, bufH, [](Elem e) { return 4 * e * e; });
 
     // Constant views
-    a::ViewConst<Buf1H<Elem>> viewCH(bufH);
-    Check<a::ViewConst<Buf1H<Elem>>, Elem>(viewCH, [](Elem e) { return 4 * e * e; }, queueH);
+    a::ViewConst<BufH1D<Elem>> viewCH(bufH);
+    Check(queueHost, viewCH, [](Elem e) { return 4 * e * e; });
     // The following line gives an error
     // viewCH[0] = -1;
-    View1<const Elem> viewC(buf.data(), alpaka::getDev(buf), alpaka::getExtents(buf));
-    Check<View1<const Elem>, Elem>(viewC, [](Elem e) { return 2 * e; }, queue);
+    View1D<const Elem> viewC(buf.data(), a::getDev(buf), a::getExtents(buf));
+    Check(queueHost, viewC, [](Elem e) { return 2 * e; });
 
     // Kernels
-    Buf1<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
-    a::WorkDivMembers<Dim1, Idx> workDiv(a::core::divCeil(c::bufLength, c::blockSize), Idx{1},
-                                         c::blockSize);
-    a::exec<Acc1>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(), -1);
+    Buf1D<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
+    WorkDiv1D workDiv = MakeWorkDiv<Acc1D>(a::getExtents(buf));
+    a::exec<Acc1D>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(), -1);
     a::wait(queue);
-    Check<Buf1<Elem>, Elem>(buf2, [](Elem e) { return -2 * e; }, queue);
+    Check(queue, buf2, [](Elem e) { return -2 * e; });
 }

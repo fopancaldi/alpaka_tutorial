@@ -1,55 +1,55 @@
 #pragma once
 
+#include "concepts.hpp"
 #include "config.hpp"
 #include "constants.hpp"
 #include "typedefs.hpp"
+#include "util.hpp"
 
 #include <alpaka/alpaka.hpp>
 #include <concepts>
 
-// TODO: Replace alpaka::isAccelerator with alpaka::concepts::Acc
-
 namespace alpaka_tutorial {
 
-template <typename TAcc>
-    requires a::isAccelerator<TAcc>
-struct requires_single_elem_per_thread {};
+template <noalpaka::concepts::Acc TAcc>
+struct requires_single_thread_per_block;
 
-template <typename TAcc>
-    requires a::isAccelerator<TAcc> && (a::Dim<TAcc>::value == 1)
-constexpr bool requires_single_elem_per_thread_v = requires_single_elem_per_thread<TAcc>::value;
+template <noalpaka::concepts::Acc TAcc>
+constexpr bool requires_single_thread_per_block_v = requires_single_thread_per_block<TAcc>::value;
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED || defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
 template <typename TDim>
-struct requires_single_elem_per_thread<Acc<TDim>> : public std::false_type {};
+struct requires_single_thread_per_block<Acc<TDim>> : public std::true_type {};
 
 #elif defined ALPAKA_ACC_GPU_CUDA_ENABLED
 template <typename TDim>
-struct requires_single_elem_per_thread<Acc<TDim>> : public std::true_type {};
+struct requires_single_thread_per_block<Acc<TDim>> : public std::false_type {};
 #endif
 
-template <typename TAcc>
-    requires a::isAccelerator<TAcc>
-a::WorkDivMembers<Dim1, Idx> MakeWorkDiv(Idx gridBlocks, Idx blockElements) {
-    if constexpr (requires_single_elem_per_thread_v<TAcc>) {
-        return a::WorkDivMembers(Vec1<Idx>(gridBlocks), Vec1<Idx>(blockElements), Vec1<Idx>(1));
+template <noalpaka::concepts::Acc TAcc>
+    requires std::same_as<alpaka::Idx<TAcc>, Idx> and (alpaka::Dim<TAcc>::value > 0)
+alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>>
+MakeWorkDiv(alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blocks,
+            alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blockElements) {
+    using Dim = alpaka::Dim<TAcc>;
+
+    if constexpr (requires_single_thread_per_block_v<TAcc>) {
+        return alpaka::WorkDivMembers(blocks, Vec<Dim>::ones(), blockElements);
     } else {
-        return a::WorkDivMembers(Vec1<Idx>(gridBlocks), Vec1<Idx>(1), Vec1<Idx>(blockElements));
+        return alpaka::WorkDivMembers(blocks, blockElements, Vec<Dim>::ones());
     }
 }
 
-namespace internal {
+template <noalpaka::concepts::Acc TAcc>
+    requires std::same_as<alpaka::Idx<TAcc>, Idx> and (alpaka::Dim<TAcc>::value > 0)
+alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>>
+MakeWorkDiv(Vec<alpaka::Dim<TAcc>> elements) {
+    using Dim = alpaka::Dim<TAcc>;
 
-auto RatioRoundedUp(std::integral auto num, std::integral auto den) {
-    return (num + den - 1) / den;
-}
-
-} // namespace internal
-
-template <typename TAcc>
-    requires a::isAccelerator<TAcc>
-a::WorkDivMembers<Dim1, Idx> MakeWorkDiv(Idx elements) {
-    return MakeWorkDiv<TAcc>(internal::RatioRoundedUp(elements, constants::blockSize), elements);
+    Vec<Dim> blocks;
+    std::ranges::transform(elements, constants::blockElements<TAcc>, blocks.begin(),
+                           [](Idx es, Idx bes) { return util::RatioRoundedUp(es, bes); });
+    return MakeWorkDiv<TAcc>(blocks, constants::blockElements<TAcc>);
 }
 
 } // namespace alpaka_tutorial

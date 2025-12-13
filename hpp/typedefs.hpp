@@ -7,53 +7,58 @@
 
 namespace alpaka_tutorial {
 
-using Dim0 = a::DimInt<0>;
-using Dim1 = a::DimInt<1>;
-using Dim2 = a::DimInt<2>;
+using Dim0D = alpaka::DimInt<0>;
+using Dim1D = alpaka::DimInt<1>;
+using Dim2D = alpaka::DimInt<2>;
 
-template <typename TElem>
-using Vec0 = a::Vec<Dim0, TElem>;
-template <typename TElem>
-using Vec1 = a::Vec<Dim1, TElem>;
-template <typename TElem>
-using Vec2 = a::Vec<Dim2, TElem>;
-
-template <typename TElem, typename TDim>
-using BufH = a::Buf<DevH, TElem, TDim, Idx>;
-template <typename TElem>
-using Buf0H = BufH<TElem, Dim0>;
-template <typename TElem>
-using Buf1H = BufH<TElem, Dim1>;
-template <typename TElem>
-using Buf2H = BufH<TElem, Dim2>;
+template <typename TDim>
+using Vec = alpaka::Vec<TDim, Idx>;
+using Scalar = Vec<Dim0D>;
+using Vec1D = Vec<Dim1D>;
+using Vec2D = Vec<Dim2D>;
 
 template <typename TElem, typename TDim>
-using ViewH = a::ViewPlainPtr<DevH, TElem, TDim, Idx>;
+using BufH = alpaka::Buf<DevHost, TElem, TDim, Idx>;
 template <typename TElem>
-using View0H = ViewH<TElem, Dim0>;
+using BufH0D = BufH<TElem, Dim0D>;
 template <typename TElem>
-using View1H = ViewH<TElem, Dim1>;
+using BufH1D = BufH<TElem, Dim1D>;
 template <typename TElem>
-using View2H = ViewH<TElem, Dim2>;
+using BufH2D = BufH<TElem, Dim2D>;
 
 template <typename TElem, typename TDim>
-using Buf = a::Buf<Device, TElem, TDim, Idx>;
+using ViewH = alpaka::ViewPlainPtr<DevHost, TElem, TDim, Idx>;
 template <typename TElem>
-using Buf0 = Buf<TElem, Dim0>;
+using ViewH0D = ViewH<TElem, Dim0D>;
 template <typename TElem>
-using Buf1 = Buf<TElem, Dim1>;
+using ViewH1D = ViewH<TElem, Dim1D>;
 template <typename TElem>
-using Buf2 = Buf<TElem, Dim2>;
+using ViewH2D = ViewH<TElem, Dim2D>;
 
 template <typename TElem, typename TDim>
-using View = a::ViewPlainPtr<Device, TElem, TDim, Idx>;
+using Buf = alpaka::Buf<Device, TElem, TDim, Idx>;
 template <typename TElem>
-using View0 = View<TElem, Dim0>;
+using Buf0D = Buf<TElem, Dim0D>;
 template <typename TElem>
-using View1 = View<TElem, Dim1>;
+using Buf1D = Buf<TElem, Dim1D>;
 template <typename TElem>
-using View2 = View<TElem, Dim2>;
+using Buf2D = Buf<TElem, Dim2D>;
 
-using Acc1 = Acc<Dim1>;
+template <typename TElem, typename TDim>
+using View = alpaka::ViewPlainPtr<Device, TElem, TDim, Idx>;
+template <typename TElem>
+using View0D = View<TElem, Dim0D>;
+template <typename TElem>
+using View1D = View<TElem, Dim1D>;
+template <typename TElem>
+using View2D = View<TElem, Dim2D>;
+
+template <typename TDim>
+using WorkDiv = alpaka::WorkDivMembers<TDim, Idx>;
+using WorkDiv1D = WorkDiv<Dim1D>;
+using WorkDiv2D = WorkDiv<Dim2D>;
+
+using Acc1D = Acc<Dim1D>;
+using Acc2D = Acc<Dim2D>;
 
 } // namespace alpaka_tutorial

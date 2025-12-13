@@ -6,32 +6,30 @@
 
 namespace alpaka_tutorial {
 
-namespace a = alpaka;
-
-using PlatformH = a::PlatformCpu;
-using DevH = a::DevCpu;
-using QueueH = a::Queue<DevH, a::Blocking>;
+using PlatformHost = alpaka::PlatformCpu;
+using DevHost = alpaka::DevCpu;
+using QueueHost = alpaka::Queue<DevHost, alpaka::Blocking>;
 
 #if defined ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-using Platform = a::PlatformCpu;
-using Device = a::DevCpu;
-using Queue = a::Queue<Device, a::Blocking>;
+using Platform = alpaka::PlatformCpu;
+using Device = alpaka::DevCpu;
+using Queue = alpaka::Queue<Device, alpaka::Blocking>;
 template <typename TDim>
-using Acc = a::AccCpuSerial<TDim, Idx>;
+using Acc = alpaka::AccCpuSerial<TDim, Idx>;
 
 #elif defined ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED
-using Platform = a::PlatformCpu;
-using Device = a::DevCpu;
-using Queue = a::Queue<Device, a::Blocking>;
+using Platform = alpaka::PlatformCpu;
+using Device = alpaka::DevCpu;
+using Queue = alpaka::Queue<Device, alpaka::Blocking>;
 template <typename TDim>
-using Acc = a::AccCpuTbbBlocks<TDim, Idx>;
+using Acc = alpaka::AccCpuTbbBlocks<TDim, Idx>;
 
 #elif defined ALPAKA_ACC_GPU_CUDA_ENABLED
-using Platform = a::PlatformCudaRt;
-using Device = a::DevCudaRt;
-using Queue = a::QueueCudaRtNonBlocking;
+using Platform = alpaka::PlatformCudaRt;
+using Device = alpaka::DevCudaRt;
+using Queue = alpaka::QueueCudaRtNonBlocking;
 template <typename TDim>
-using Acc = a::AccGpuCudaRt<TDim, Idx>;
+using Acc = alpaka::AccGpuCudaRt<TDim, Idx>;
 
 #else
 #error "Define one backend configuration"
