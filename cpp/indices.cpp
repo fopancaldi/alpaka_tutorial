@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <span>
 
 namespace a = alpaka;
@@ -41,32 +40,31 @@ int main() {
     Device device = alpaka::getDevByIdx(platform, 0);
     Queue queue(device);
 
-    BufH2D<Elem> bufHost = a::allocBuf<Elem, Idx>(devHost, Vec2D(yExtent, xExtent));
-    assert(a::getExtents(bufHost).x() == xExtent);
-    assert(a::getExtents(bufHost).y() == yExtent);
-    assert(a::getExtents(bufHost).x() == a::getExtents(bufHost)[1]);
-    assert(a::getExtents(bufHost).y() == a::getExtents(bufHost)[0]);
+    BufH2D<Elem> bufH = a::allocBuf<Elem, Idx>(devHost, Vec2D(yExtent, xExtent));
+    assert(a::getExtents(bufH).x() == xExtent);
+    assert(a::getExtents(bufH).y() == yExtent);
+    assert(a::getExtents(bufH).x() == a::getExtents(bufH)[1]);
+    assert(a::getExtents(bufH).y() == a::getExtents(bufH)[0]);
 
-    Vec2D const pitchesBytes = a::getPitchesInBytes(bufHost);
+    Vec2D const pitchesBytes = a::getPitchesInBytes(bufH);
     assert(pitchesBytes.x() == pitchesBytes[1]);
     assert(pitchesBytes.y() == pitchesBytes[0]);
     assert(pitchesBytes.x() == sizeof(Elem));
     assert(pitchesBytes.y() == xExtent * sizeof(Elem));
 
-    std::ranges::generate(
-        std::span(bufHost.data(), a::getExtents(bufHost).x() * a::getExtents(bufHost).y()),
-        [i = 0]() mutable { return i--; });
-    Elem const* const bufHostData = bufHost.data();
-    assert(*bufHostData == 0);
-    assert(*(bufHostData + 2) == -2);
-    assert(*(bufHostData + xExtent * yExtent - 1) == (-xExtent * yExtent + 1));
-    assert(bufHost[Vec2D(0, 0)] == *bufHostData);
-    assert(bufHost[Vec2D(0, 2)] == *(bufHostData + 2));
-    assert(bufHost[Vec2D(3, 0)] == *(bufHostData + 3 * xExtent));
-    assert(bufHost[Vec2D(yExtent - 1, xExtent - 1)] == *(bufHostData + xExtent * yExtent - 1));
+    std::ranges::generate(std::span(bufH.data(), a::getExtents(bufH).x() * a::getExtents(bufH).y()),
+                          [i = 0]() mutable { return i--; });
+    Elem const* const bufHData = bufH.data();
+    assert(*bufHData == 0);
+    assert(*(bufHData + 2) == -2);
+    assert(*(bufHData + xExtent * yExtent - 1) == (-xExtent * yExtent + 1));
+    assert(bufH[Vec2D(0, 0)] == *bufHData);
+    assert(bufH[Vec2D(0, 2)] == *(bufHData + 2));
+    assert(bufH[Vec2D(3, 0)] == *(bufHData + 3 * xExtent));
+    assert(bufH[Vec2D(yExtent - 1, xExtent - 1)] == *(bufHData + xExtent * yExtent - 1));
 
-    Buf2D<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufHost));
-    a::memcpy(queue, buf, bufHost);
+    Buf2D<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufH));
+    a::memcpy(queue, buf, bufH);
     Vec2D const bufPitches = a::getPitchesInBytes(buf);
     assert(bufPitches.x() == sizeof(Elem));
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
