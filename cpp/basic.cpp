@@ -37,15 +37,15 @@ ALPAKA_FN_HOST void Check(TQueue& queue, TBuf buf, TCheckFn&& checkFn) {
 // - use alpaka::math, alpaka::atomic ..., alpaka::warp
 struct Kernel {
     template <at::concepts::Acc1D TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, at::Elem const* in, at::Elem* out, at::Idx size,
-                                  at::Elem multiplier) const {
-        // In this kernel it is not necessary to use groups, since the number of blocks is chosen at
-        // runtime in order to guarantee that all problem space is covered
-        for (at::Idx groupIdx : a::uniformGroups(acc, size)) {
-            for (a::ElementIndex<at::Idx> elemIdx : a::uniformGroupElements(acc, groupIdx, size)) {
-                if (elemIdx.global < size) {
-                    out[elemIdx.global] = in[elemIdx.global] * multiplier;
-                }
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, at::Elem const* in, at::Elem* out,
+                                  at::Vec1D extents, at::Elem multiplier) const {
+        // In this kernel it is not necessary to use groups, since those are needed only for
+        // synchronization of elements in the same block
+        for (at::Idx groupIdx : a::uniformGroups(acc, extents.x())) {
+            for (a::ElementIndex<at::Idx> elemIdx :
+                 a::uniformGroupElements(acc, groupIdx, extents.x())) {
+                ALPAKA_ASSERT(elemIdx.global < extents.x());
+                out[elemIdx.global] = in[elemIdx.global] * multiplier;
             }
         }
     }
@@ -99,7 +99,7 @@ int main() {
     // Kernels
     Buf1D<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
     WorkDiv1D const workDiv = MakeWorkDiv<Acc1D>(a::getExtents(buf));
-    a::exec<Acc1D>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf).x(), -1);
+    a::exec<Acc1D>(queue, workDiv, Kernel{}, buf.data(), buf2.data(), a::getExtents(buf), -1);
     a::wait(queue);
     Check(queue, buf2, [](Elem e) { return -2 * e; });
 }
