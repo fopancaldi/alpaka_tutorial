@@ -8,11 +8,6 @@
 namespace a = alpaka;
 namespace at = alpaka_tutorial;
 
-template <typename T>
-std::size_t SizeCast(T t) {
-    return static_cast<std::size_t>(t);
-}
-
 struct CheckKernel {
     template <at::concepts::Acc1D TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const&, at::Elem const* data, at::Vec2D extents,
