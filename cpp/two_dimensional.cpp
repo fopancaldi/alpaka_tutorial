@@ -59,8 +59,8 @@ int main() {
     assert(*(bufHData + 2) == -2);
     assert(*(bufHData + extents.x() * extents.y() - 1) == (-static_cast<int>(extents.prod()) + 1));
     assert(bufH[Vec2D(0, 0)] == *bufHData);
-    assert(bufH[Vec2D(0, 2)] == *(bufHData + 2));
-    assert(bufH[Vec2D(3, 0)] == *(bufHData + 3 * extents.x()));
+    assert(bufH[Vec2D(0, 11)] == *(bufHData + 11));
+    assert(bufH[Vec2D(7, 0)] == *(bufHData + 7 * extents.x()));
     assert(bufH[Vec2D(extents.y() - 1, extents.x() - 1)] == *(bufHData + extents.prod() - 1));
 
     Buf2D<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufH));
