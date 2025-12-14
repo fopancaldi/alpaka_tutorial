@@ -30,9 +30,9 @@ struct CheckKernel {
 
 int main() {
     using namespace at;
+    namespace c = constants;
 
-    constexpr int xExtent = 4;
-    constexpr int yExtent = 7;
+    Vec2D constexpr extents(c::bufLength, c::bufLength);
 
     PlatformHost platfHost;
     assert(a::getDevCount(platfHost) > 0);
@@ -42,9 +42,7 @@ int main() {
     Device device = alpaka::getDevByIdx(platform, 0);
     Queue queue(device);
 
-    BufH2D<Elem> bufH = a::allocBuf<Elem, Idx>(devHost, Vec2D(yExtent, xExtent));
-    assert(a::getExtents(bufH).x() == xExtent);
-    assert(a::getExtents(bufH).y() == yExtent);
+    BufH2D<Elem> bufH = a::allocBuf<Elem, Idx>(devHost, extents);
     assert(a::getExtents(bufH).x() == a::getExtents(bufH)[1]);
     assert(a::getExtents(bufH).y() == a::getExtents(bufH)[0]);
 
@@ -52,25 +50,25 @@ int main() {
     assert(pitchesBytes.x() == pitchesBytes[1]);
     assert(pitchesBytes.y() == pitchesBytes[0]);
     assert(pitchesBytes.x() == sizeof(Elem));
-    assert(pitchesBytes.y() == xExtent * sizeof(Elem));
+    assert(pitchesBytes.y() == extents.x() * sizeof(Elem));
 
     std::ranges::generate(std::span(bufH.data(), a::getExtents(bufH).x() * a::getExtents(bufH).y()),
                           [i = 0]() mutable { return i--; });
     Elem const* const bufHData = bufH.data();
     assert(*bufHData == 0);
     assert(*(bufHData + 2) == -2);
-    assert(*(bufHData + xExtent * yExtent - 1) == (-xExtent * yExtent + 1));
+    assert(*(bufHData + extents.x() * extents.y() - 1) == (-static_cast<int>(extents.prod()) + 1));
     assert(bufH[Vec2D(0, 0)] == *bufHData);
     assert(bufH[Vec2D(0, 2)] == *(bufHData + 2));
-    assert(bufH[Vec2D(3, 0)] == *(bufHData + 3 * xExtent));
-    assert(bufH[Vec2D(yExtent - 1, xExtent - 1)] == *(bufHData + xExtent * yExtent - 1));
+    assert(bufH[Vec2D(3, 0)] == *(bufHData + 3 * extents.x()));
+    assert(bufH[Vec2D(extents.y() - 1, extents.x() - 1)] == *(bufHData + extents.prod() - 1));
 
     Buf2D<Elem> buf = a::allocAsyncBufIfSupported<Elem, Idx>(queue, a::getExtents(bufH));
     a::memcpy(queue, buf, bufH);
-    Vec2D const bufPitches = a::getPitchesInBytes(buf);
-    assert(bufPitches.x() == sizeof(Elem));
+    Vec2D const pitches = a::getPitchesInBytes(buf);
+    assert(pitches.x() == sizeof(Elem));
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
-    assert(bufPitches.y() == bufPitches.x() * sizeof(Elem));
+    assert(pitches.y() == extents.x() * sizeof(Elem));
 #endif
 
     WorkDiv1D const workDiv(Idx{1}, Idx{1}, Idx{1});
