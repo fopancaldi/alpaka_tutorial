@@ -13,6 +13,9 @@ concept pointer = std::is_pointer_v<T>;
 namespace noalpaka::concepts {
 
 template <typename T>
+concept Dim = std::integral<decltype(T::value)>;
+
+template <typename T>
 concept Dev = alpaka::isDevice<T>;
 
 template <typename T>
@@ -35,7 +38,7 @@ template <typename T>
 concept Buffer = requires(T t) {
     requires noalpaka::concepts::Dev<alpaka::Dev<T>>;
     typename alpaka::Elem<T>;
-    requires std::integral<decltype(alpaka::Dim<T>::value)>;
+    requires noalpaka::concepts::Dim<alpaka::Dim<T>>;
     requires std::integral<alpaka::Idx<T>>;
     { alpaka::getPtrNative(t) } -> nostd::pointer;
 };
