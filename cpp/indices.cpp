@@ -16,6 +16,8 @@ struct CheckKernel {
                 ALPAKA_ASSERT(
                     data[xIdx + yIdx * pitch.y() / static_cast<at::Idx>(sizeof(at::Elem))] ==
                     -static_cast<int>(xIdx + yIdx * extent.x()));
+                ALPAKA_ASSERT(at::PtrAt(data, at::Vec2D(yIdx, xIdx), pitch) ==
+                              -static_cast<int>(xIdx + yIdx * extent.x()));
             }
         }
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
