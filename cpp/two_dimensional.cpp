@@ -8,21 +8,21 @@ namespace a = alpaka;
 namespace at = alpaka_tutorial;
 
 struct CheckKernel {
-    template <at::concepts::Acc1D TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const&, at::Elem const* data, at::Vec2D extent,
+    template <at::concepts::Acc2D TAcc>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, at::Elem const* data, at::Vec2D extent,
                                   at::Vec2D pitch) const {
-        for (at::Idx yIdx = 0; yIdx < extent.y(); ++yIdx) {
-            for (at::Idx xIdx = 0; xIdx < extent.x(); ++xIdx) {
-                ALPAKA_ASSERT(
-                    data[xIdx + yIdx * pitch.y() / static_cast<at::Idx>(sizeof(at::Elem))] ==
-                    -static_cast<int>(xIdx + yIdx * extent.x()));
-                ALPAKA_ASSERT(at::PtrAt(data, at::Vec2D(yIdx, xIdx), pitch) ==
-                              -static_cast<int>(xIdx + yIdx * extent.x()));
-            }
+        for (at::Vec2D idx : a::uniformElementsND(acc, extent)) {
+            ALPAKA_ASSERT(
+                data[idx.x() + idx.y() * pitch.y() / static_cast<at::Idx>(sizeof(at::Elem))] ==
+                -static_cast<at::Elem>(idx.x() + idx.y() * extent.x()));
+            ALPAKA_ASSERT(at::PtrAt(data, idx, pitch) ==
+                          -static_cast<at::Elem>(idx.x() + idx.y() * extent.x()));
         }
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
-        for (at::Idx i = 0; i < extent.x() * extent.y(); ++i) {
-            ALPAKA_ASSERT(data[i] == -static_cast<int>(i));
+        if (a::oncePerGrid(acc)) {
+            for (at::Idx i = 0; i < extent.x() * extent.y(); ++i) {
+                ALPAKA_ASSERT(data[i] == -static_cast<at::Elem>(i));
+            }
         }
 #endif
     }
@@ -71,7 +71,7 @@ int main() {
     assert(pitches.y() == extents.x() * sizeof(Elem));
 #endif
 
-    WorkDiv1D const workDiv(Idx{1}, Idx{1}, Idx{1});
-    a::exec<Acc1D>(queue, workDiv, CheckKernel{}, buf.data(), a::getExtents(buf),
+    WorkDiv2D const workDiv = MakeWorkDiv<Acc2D>(extents);
+    a::exec<Acc2D>(queue, workDiv, CheckKernel{}, buf.data(), a::getExtents(buf),
                    a::getPitchesInBytes(buf));
 }
