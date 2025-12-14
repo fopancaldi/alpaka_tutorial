@@ -10,17 +10,17 @@ namespace at = alpaka_tutorial;
 
 struct CheckKernel {
     template <at::concepts::Acc1D TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const&, at::Elem const* data, at::Vec2D extents,
-                                  at::Vec2D pitches) const {
-        for (at::Idx yIdx = 0; yIdx < extents.y(); ++yIdx) {
-            for (at::Idx xIdx = 0; xIdx < extents.x(); ++xIdx) {
+    ALPAKA_FN_ACC void operator()(TAcc const&, at::Elem const* data, at::Vec2D extent,
+                                  at::Vec2D pitch) const {
+        for (at::Idx yIdx = 0; yIdx < extent.y(); ++yIdx) {
+            for (at::Idx xIdx = 0; xIdx < extent.x(); ++xIdx) {
                 ALPAKA_ASSERT(
-                    data[xIdx + yIdx * pitches.y() / static_cast<at::Idx>(sizeof(at::Elem))] ==
-                    -static_cast<int>(xIdx + yIdx * extents.x()));
+                    data[xIdx + yIdx * pitch.y() / static_cast<at::Idx>(sizeof(at::Elem))] ==
+                    -static_cast<int>(xIdx + yIdx * extent.x()));
             }
         }
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
-        for (at::Idx i = 0; i < extents.x() * extents.y(); ++i) {
+        for (at::Idx i = 0; i < extent.x() * extent.y(); ++i) {
             ALPAKA_ASSERT(data[i] == -static_cast<int>(i));
         }
 #endif
