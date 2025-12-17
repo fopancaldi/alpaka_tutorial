@@ -1,4 +1,4 @@
-Code I have used to display the most basic functionalities of [alpaka](https://github.com/alpaka-group/alpaka) while learning it.
+Code I have used to display some basic functionalities of [alpaka](https://github.com/alpaka-group/alpaka) while learning it.
 
 Should contain everything a new user should know.
 
