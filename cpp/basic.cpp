@@ -12,7 +12,7 @@
 namespace a = alpaka;
 namespace at = alpaka_tutorial;
 
-template <noalpaka::concepts::Queue TQueue, at::concepts::Buffer TBuf, typename TCheckFn>
+template <at::concepts::Queue TQueue, at::concepts::Buffer TBuf, typename TCheckFn>
     requires requires(TCheckFn f, int i) {
         { f(i) } -> std::convertible_to<typename a::Elem<TBuf>>;
     }
