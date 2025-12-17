@@ -11,7 +11,7 @@ namespace detail {
 
 Idx constexpr totalBlockElements = 16;
 
-template <noalpaka::concepts::Acc TAcc>
+template <concepts::Acc TAcc>
 struct BlockElements {};
 
 template <concepts::Acc1D TAcc>
@@ -31,7 +31,7 @@ struct BlockElements<TAcc> {
 
 } // namespace detail
 
-template <noalpaka::concepts::Acc TAcc>
+template <concepts::Acc TAcc>
 alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> constexpr blockElements =
     detail::BlockElements<TAcc>::value;
 

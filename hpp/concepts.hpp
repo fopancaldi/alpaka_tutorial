@@ -21,18 +21,27 @@ concept Dev = alpaka::isDevice<T>;
 template <typename T>
 concept Queue = alpaka::isQueue<T>;
 
-template <typename T>
-concept Acc = alpaka::isAccelerator<T>;
-
 } // namespace noalpaka::concepts
 
 namespace alpaka_tutorial::concepts {
 
 template <typename T>
-concept Acc1D = noalpaka::concepts::Acc<T> and (alpaka::Dim<T>::value == 1);
+concept Dim = noalpaka::concepts::Dim<T>;
 
 template <typename T>
-concept Acc2D = noalpaka::concepts::Acc<T> and (alpaka::Dim<T>::value == 2);
+concept Dev = noalpaka::concepts::Dev<T>;
+
+template <typename T>
+concept Queue = noalpaka::concepts::Queue<T>;
+
+template <typename T>
+concept Acc = alpaka::concepts::Acc<T>;
+
+template <typename T>
+concept Acc1D = Acc<T> and (alpaka::Dim<T>::value == 1);
+
+template <typename T>
+concept Acc2D = Acc<T> and (alpaka::Dim<T>::value == 2);
 
 template <typename T>
 concept Buffer = requires(T t) {
