@@ -52,7 +52,7 @@ int main() {
     assert(pitchesBytes.x() == sizeof(Elem));
     assert(pitchesBytes.y() == extents.x() * sizeof(Elem));
 
-    std::ranges::generate(std::span(bufH.data(), a::getExtents(bufH).x() * a::getExtents(bufH).y()),
+    std::ranges::generate(std::span(bufH.data(), a::getExtents(bufH).prod()),
                           [i = 0]() mutable { return i--; });
     Elem const* const bufHData = bufH.data();
     assert(*bufHData == 0);
