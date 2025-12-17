@@ -13,7 +13,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "")
 endif()
 
 string(
-    APPEND CMAKE_CXX_FLAGS
+    APPEND
+    CMAKE_CXX_FLAGS
     " -O2 -march=native -ftree-vectorize -funroll-loops -funsafe-math-optimizations"
     " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual"
     " -Wformat=2 -Wundef -Wshadow -Wcast-align -Wunused -Wnull-dereference"
@@ -21,11 +22,13 @@ string(
     " -Woverloaded-virtual -Wnon-virtual-dtor -Wold-style-cast"
 )
 string(
-    APPEND CMAKE_CXX_FLAGS_DEBUG
+    APPEND
+    CMAKE_CXX_FLAGS_DEBUG
     " -fsanitize=address,undefined -fno-omit-frame-pointer -pg"
 )
 string(
-    APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG
+    APPEND
+    CMAKE_EXE_LINKER_FLAGS_DEBUG
     " -fsanitize=address,undefined -fno-omit-frame-pointer"
 )
 
@@ -66,6 +69,7 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
     set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
     set(CMAKE_CUDA_ARCHITECTURES "50;60;61;62;70;80;90")
     add_compile_options("--expt-relaxed-constexpr")
+    add_compile_options("--extended-lambda")
 endif()
 
 # TODO: Understand why the address sanitizer does not behave well in the cnaf machine
@@ -93,13 +97,14 @@ block(PROPAGATE alpaka_SOURCE_DIR)
 endblock()
 include_directories(${alpaka_SOURCE_DIR}/include)
 
+include_directories(${CMAKE_SOURCE_DIR}/hpp)
+
 file(GLOB all_cpp ${CMAKE_SOURCE_DIR}/cpp/*.cpp)
 foreach(cpp_file IN LISTS all_cpp)
     block()
         cmake_path(REMOVE_EXTENSION cpp_file OUTPUT_VARIABLE cpp_file_noext)
         cmake_path(GET cpp_file_noext FILENAME filename)
         add_executable(${filename} ${cpp_file})
-        target_include_directories(${filename} PRIVATE ${CMAKE_SOURCE_DIR}/hpp)
     endblock()
     if(alpaka_acc_config STREQUAL alpaka_cuda_flag)
         set_source_files_properties(${cpp_file} PROPERTIES LANGUAGE CUDA)
