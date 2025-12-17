@@ -94,7 +94,7 @@ int main() {
     // The following line gives an error
     // viewCH[0] = -1;
     View1D<Elem const> viewC(buf.data(), a::getDev(buf), a::getExtents(buf));
-    Check(queueHost, viewC, [](Elem e) { return 2 * e; });
+    Check(queue, viewC, [](Elem e) { return 2 * e; });
 
     // Kernels
     Buf1D<Elem> buf2 = a::allocBuf<Elem, Idx>(device, a::getExtents(buf));
