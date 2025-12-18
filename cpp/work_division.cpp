@@ -8,7 +8,7 @@
         bool hasThrown = false;                                                                    \
         try {                                                                                      \
             cmd;                                                                                   \
-        } catch (std::runtime_error) {                                                             \
+        } catch (std::runtime_error const&) {                                                      \
             hasThrown = true;                                                                      \
         }                                                                                          \
         assert(hasThrown /**/&& #cmd && "did not throw");                                          \
@@ -38,7 +38,7 @@ int main() {
     Device device = a::getDevByIdx(platform, 0);
     Queue queue(device);
 
-    // Single thread
+    // Multiple threads
 #ifndef ALPAKA_ACC_GPU_CUDA_ENABLED
     RunKernel<Dim1D>(queue, 1, 1, 1);
     if constexpr (a::isSingleThreadAcc<Acc1D>) {
@@ -49,6 +49,9 @@ int main() {
 #else
     AT_CHECK_THROWS(RunKernel<Dim1D>(queue, 1, 1025, 1))
 #endif
+
+    // Multiple elements
+    RunKernel<Dim1D>(queue, 1, 1, 2);
 
     // Max grid size
     RunKernel<Dim2D>(queue, {1, 1 << 16}, {1, 1}, {1, 1});
