@@ -18,7 +18,6 @@ endif()
 string(
   APPEND
   CMAKE_CXX_FLAGS
-  " -O2 -march=native -ftree-vectorize -funroll-loops -funsafe-math-optimizations"
   " -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wcast-qual"
   " -Wformat=2 -Wundef -Wshadow -Wcast-align -Wunused -Wnull-dereference"
   " -Wdouble-promotion -Wimplicit-fallthrough -Wextra-semi"
