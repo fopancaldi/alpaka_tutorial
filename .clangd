@@ -1,0 +1,8 @@
+CompileFlags:
+  Add:
+    [
+      -DALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED=ON,
+      -std=c++20,
+      -Ihpp,
+      -Ibuild/_deps/alpaka-src/include,
+    ]
