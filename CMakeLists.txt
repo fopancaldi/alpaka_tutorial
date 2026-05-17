@@ -4,6 +4,10 @@ project(
   VERSION 0.0.1
   LANGUAGES CXX)
 
+set(DESIRED_ALPAKA_VERSION
+    2.1.1
+    CACHE STRING "Desired alpaka version")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -78,16 +82,18 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 
-FetchContent_Declare(
-  alpaka
-  GIT_REPOSITORY https://github.com/alpaka-group/alpaka
-  GIT_TAG 2.1.0)
-set(alpaka_SOURCE_DIR "")
-block(PROPAGATE alpaka_SOURCE_DIR)
-set(BUILD_TESTING OFF)
-FetchContent_MakeAvailable(alpaka)
-endblock()
-include_directories(${alpaka_SOURCE_DIR}/include)
+find_package(alpaka ${DESIRED_ALPAKA_VERSION} QUIET)
+if(NOT alpaka_FOUND)
+  FetchContent_Declare(
+    alpaka
+    GIT_REPOSITORY https://github.com/alpaka-group/alpaka.git
+    GIT_TAG ${DESIRED_ALPAKA_VERSION})
+  block()
+  set(BUILD_TESTING OFF)
+  FetchContent_MakeAvailable(alpaka)
+  endblock()
+endif()
+link_libraries(alpaka::alpaka)
 
 include_directories(${CMAKE_SOURCE_DIR}/hpp)
 
