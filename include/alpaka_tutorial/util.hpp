@@ -1,7 +1,7 @@
 #pragma once
 
-#include "concepts.hpp"
-#include "typedefs.hpp"
+#include "alpaka_tutorial/concepts.hpp"
+#include "alpaka_tutorial/typedefs.hpp"
 
 #include <alpaka/alpaka.hpp>
 #include <concepts>

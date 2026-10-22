@@ -1,9 +1,9 @@
 #pragma once
 
-#include "concepts.hpp"
-#include "constants.hpp"
-#include "typedefs.hpp"
-#include "util.hpp"
+#include "alpaka_tutorial/concepts.hpp"
+#include "alpaka_tutorial/constants.hpp"
+#include "alpaka_tutorial/typedefs.hpp"
+#include "alpaka_tutorial/util.hpp"
 
 #include <alpaka/alpaka.hpp>
 #include <concepts>
@@ -12,9 +12,9 @@ namespace alpaka_tutorial {
 
 template <concepts::Acc TAcc>
     requires std::same_as<alpaka::Idx<TAcc>, Idx> and (alpaka::Dim<TAcc>::value > 0)
-alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> MakeWorkDiv(
-    alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blocks,
-    alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blockElements) {
+alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>>
+MakeWorkDiv(alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blocks,
+            alpaka::Vec<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> blockElements) {
     using Dim = alpaka::Dim<TAcc>;
 
     if constexpr (alpaka::isSingleThreadAcc<TAcc>) {
@@ -26,8 +26,8 @@ alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> MakeWorkDiv(
 
 template <concepts::Acc TAcc>
     requires std::same_as<alpaka::Idx<TAcc>, Idx> and (alpaka::Dim<TAcc>::value > 0)
-alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>> MakeWorkDiv(
-    Vec<alpaka::Dim<TAcc>> elements) {
+alpaka::WorkDivMembers<alpaka::Dim<TAcc>, alpaka::Idx<TAcc>>
+MakeWorkDiv(Vec<alpaka::Dim<TAcc>> elements) {
     using Dim = alpaka::Dim<TAcc>;
 
     Vec<Dim> blocks;

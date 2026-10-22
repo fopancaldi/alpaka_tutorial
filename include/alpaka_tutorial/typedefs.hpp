@@ -1,7 +1,7 @@
 #pragma once
 
-#include "basic_typedefs.hpp"
-#include "config.hpp"
+#include "alpaka_tutorial/basic_typedefs.hpp"
+#include "alpaka_tutorial/config.hpp"
 
 #include <alpaka/alpaka.hpp>
 

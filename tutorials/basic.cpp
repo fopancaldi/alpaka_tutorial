@@ -1,4 +1,4 @@
-#include "alpaka_tutorial.hpp"
+#include "alpaka_tutorial/alpaka_tutorial.hpp"
 
 #include <algorithm>
 #include <cassert>

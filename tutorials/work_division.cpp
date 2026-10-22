@@ -1,4 +1,4 @@
-#include "alpaka_tutorial.hpp"
+#include "alpaka_tutorial/alpaka_tutorial.hpp"
 
 #include <cassert>
 #include <stdexcept>
@@ -11,7 +11,7 @@
         } catch (std::runtime_error const&) {                                                      \
             hasThrown = true;                                                                      \
         }                                                                                          \
-        assert(hasThrown /**/&& #cmd && "did not throw");                                          \
+        assert(hasThrown /**/ && #cmd && "did not throw");                                         \
     } while (false);
 
 namespace a = alpaka;

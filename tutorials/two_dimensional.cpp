@@ -1,8 +1,4 @@
-#include "alpaka_tutorial.hpp"
-
-#include <algorithm>
-#include <cassert>
-#include <span>
+#include "alpaka_tutorial/alpaka_tutorial.hpp"
 
 namespace a = alpaka;
 namespace at = alpaka_tutorial;

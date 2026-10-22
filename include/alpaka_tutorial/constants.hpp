@@ -1,7 +1,7 @@
 #pragma once
 
-#include "basic_typedefs.hpp"
-#include "concepts.hpp"
+#include "alpaka_tutorial/basic_typedefs.hpp"
+#include "alpaka_tutorial/concepts.hpp"
 
 namespace alpaka_tutorial::constants {
 

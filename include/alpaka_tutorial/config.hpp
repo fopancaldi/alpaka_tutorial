@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basic_typedefs.hpp"
+#include "alpaka_tutorial/basic_typedefs.hpp"
 
 #include <alpaka/alpaka.hpp>
 

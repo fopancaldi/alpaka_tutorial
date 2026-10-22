@@ -84,9 +84,9 @@ if(NOT alpaka_FOUND)
 endif()
 
 add_library(alpakaTutorial INTERFACE)
-target_include_directories(alpakaTutorial INTERFACE ${CMAKE_SOURCE_DIR}/hpp)
+target_include_directories(alpakaTutorial INTERFACE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(alpakaTutorial INTERFACE alpaka::alpaka)
 add_library(alpakaTutorial::alpakaTutorial ALIAS alpakaTutorial)
 link_libraries(alpakaTutorial::alpakaTutorial)
 
-add_subdirectory(cpp)
+add_subdirectory(tutorials)
