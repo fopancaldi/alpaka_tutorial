@@ -61,9 +61,9 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
   string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -lineinfo")
 
   set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
-  set(CMAKE_CUDA_ARCHITECTURES "50;60;61;62;70;80;90")
-  add_compile_options("--expt-relaxed-constexpr")
-  add_compile_options("--extended-lambda")
+  set(CMAKE_CUDA_ARCHITECTURES native)
+  add_compile_options(--expt-relaxed-constexpr)
+  add_compile_options(--extended-lambda)
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
