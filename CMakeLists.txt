@@ -28,8 +28,6 @@ string(
   " -Woverloaded-virtual -Wnon-virtual-dtor -Wold-style-cast")
 string(APPEND CMAKE_CXX_FLAGS_DEBUG
        " -fsanitize=address,undefined -fno-omit-frame-pointer -pg")
-string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG
-       " -fsanitize=address,undefined -fno-omit-frame-pointer")
 
 set(alpaka_serial_flag "ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED")
 set(alpaka_tbb_flag "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
@@ -66,14 +64,6 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
   set(CMAKE_CUDA_ARCHITECTURES "50;60;61;62;70;80;90")
   add_compile_options("--expt-relaxed-constexpr")
   add_compile_options("--extended-lambda")
-endif()
-
-# TODO: Understand why the address sanitizer does not behave well in the cnaf
-# machine
-if(alpaka_acc_config STREQUAL alpaka_cuda_flag)
-  foreach(flags IN ITEMS CMAKE_CXX_FLAGS_DEBUG CMAKE_EXE_LINKER_FLAGS_DEBUG)
-    string(REPLACE " -fsanitize=address,undefined" "" ${flags} ${${flags}})
-  endforeach()
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
