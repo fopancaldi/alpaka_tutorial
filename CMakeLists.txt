@@ -86,7 +86,7 @@ endif()
 add_library(alpakaTutorial INTERFACE)
 target_include_directories(alpakaTutorial INTERFACE ${CMAKE_SOURCE_DIR}/hpp)
 target_link_libraries(alpakaTutorial INTERFACE alpaka::alpaka)
-add_library(alpakaTutorial ALIAS alpakaTutorial)
+add_library(alpakaTutorial::alpakaTutorial ALIAS alpakaTutorial)
 link_libraries(alpakaTutorial::alpakaTutorial)
 
 add_subdirectory(cpp)
