@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(
-  alpaka_tutorial
+  alpakaTutorial
   VERSION 0.0.1
   LANGUAGES CXX)
 
@@ -84,7 +84,9 @@ if(NOT alpaka_FOUND)
 endif()
 link_libraries(alpaka::alpaka)
 
-include_directories(${CMAKE_SOURCE_DIR}/hpp)
+add_library(alpakaTutorial INTERFACE)
+target_include_directories(alpakaTutorial INTERFACE ${CMAKE_SOURCE_DIR}/hpp)
+link_libraries(alpakaTutorial)
 
 file(GLOB all_cpp ${CMAKE_SOURCE_DIR}/cpp/*.cpp)
 foreach(cpp_file IN LISTS all_cpp)
