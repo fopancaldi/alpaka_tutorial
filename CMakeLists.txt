@@ -27,7 +27,7 @@ string(
   " -Wdouble-promotion -Wimplicit-fallthrough -Wextra-semi"
   " -Woverloaded-virtual -Wnon-virtual-dtor -Wold-style-cast")
 string(APPEND CMAKE_CXX_FLAGS_DEBUG
-       " -fsanitize=address,undefined -fno-omit-frame-pointer -pg")
+       " -O0 -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg")
 
 set(alpaka_serial_flag "ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED")
 set(alpaka_tbb_flag "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
@@ -57,7 +57,8 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
     set(CMAKE_CUDA_STANDARD 20)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
   endif()
-  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -lineinfo")
+  string(APPEND CMAKE_CUDA_FLAGS " -Wno-deprecated-gpu-targets")
+  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -O0 -g -pg -G")
 
   set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
   set(CMAKE_CUDA_ARCHITECTURES native)
