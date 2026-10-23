@@ -57,13 +57,12 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
     set(CMAKE_CUDA_STANDARD 20)
     set(CMAKE_CUDA_STANDARD_REQUIRED ON)
   endif()
-  string(APPEND CMAKE_CUDA_FLAGS " -Wno-deprecated-gpu-targets")
-  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -O0 -g -pg -G")
-
-  set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
   set(CMAKE_CUDA_ARCHITECTURES native)
-  add_compile_options(--expt-relaxed-constexpr)
-  add_compile_options(--extended-lambda)
+  set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
+  string(
+    APPEND CMAKE_CUDA_FLAGS
+    " -expt-relaxed-constexpr -extended-lambda -Wno-deprecated-gpu-targets")
+  string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -O0 -g -pg -G")
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)
