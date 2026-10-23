@@ -70,7 +70,7 @@ target_include_directories(alpaka_tutorial
                            INTERFACE ${CMAKE_SOURCE_DIR}/include)
 add_library(alpaka_tutorial::alpaka_tutorial ALIAS alpaka_tutorial)
 
-find_package(Boost QUIET COMPONENTS atomic)
+find_package(Boost QUIET CONFIG COMPONENTS atomic)
 if(Boost_FOUND)
   target_link_libraries(alpaka_tutorial SYSTEM INTERFACE Boost::atomic)
 else()
