@@ -65,15 +65,17 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
   string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -O0 -g -pg -G")
 endif()
 
-add_library(alpakaTutorial INTERFACE)
-target_include_directories(alpakaTutorial INTERFACE ${CMAKE_SOURCE_DIR}/include)
-add_library(alpakaTutorial::alpakaTutorial ALIAS alpakaTutorial)
+add_library(alpaka_tutorial INTERFACE)
+target_include_directories(alpaka_tutorial
+                           INTERFACE ${CMAKE_SOURCE_DIR}/include)
+add_library(alpaka_tutorial::alpaka_tutorial ALIAS alpaka_tutorial)
 
 find_package(Boost QUIET COMPONENTS atomic)
 if(Boost_FOUND)
-  target_link_libraries(alpakaTutorial SYSTEM INTERFACE Boost::atomic)
+  target_link_libraries(alpaka_tutorial SYSTEM INTERFACE Boost::atomic)
 else()
-  target_compile_definitions(alpakaTutorial INTERFACE ALPAKA_HAS_STD_ATOMIC_REF)
+  target_compile_definitions(alpaka_tutorial
+                             INTERFACE ALPAKA_HAS_STD_ATOMIC_REF)
 endif()
 
 find_package(alpaka ${DESIRED_ALPAKA_VERSION} QUIET)
@@ -87,6 +89,6 @@ if(NOT alpaka_FOUND)
   FetchContent_MakeAvailable(alpaka)
   endblock()
 endif()
-target_link_libraries(alpakaTutorial INTERFACE alpaka::alpaka)
+target_link_libraries(alpaka_tutorial INTERFACE alpaka::alpaka)
 
 add_subdirectory(tutorials)
