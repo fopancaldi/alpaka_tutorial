@@ -29,6 +29,11 @@ string(
 string(APPEND CMAKE_CXX_FLAGS_DEBUG
        " -O0 -fsanitize=address,undefined -fno-omit-frame-pointer -g -pg")
 
+add_library(alpaka_tutorial INTERFACE)
+target_include_directories(alpaka_tutorial
+                           INTERFACE ${CMAKE_SOURCE_DIR}/include)
+add_library(alpaka_tutorial::alpaka_tutorial ALIAS alpaka_tutorial)
+
 set(alpaka_serial_flag "ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED")
 set(alpaka_tbb_flag "ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLED")
 set(alpaka_cuda_flag "ALPAKA_ACC_GPU_CUDA_ENABLED")
@@ -48,7 +53,7 @@ if(NOT alpaka_acc_config)
   message(FATAL_ERROR "Define one backend configuration")
 elseif(alpaka_acc_config STREQUAL alpaka_tbb_flag)
   find_package(TBB REQUIRED)
-  link_libraries(tbb)
+  target_link_libraries(alpaka_tutorial INTERFACE tbb)
 elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
   check_language(CUDA)
   enable_language(CUDA)
@@ -64,11 +69,6 @@ elseif(alpaka_acc_config STREQUAL alpaka_cuda_flag)
     " -expt-relaxed-constexpr -extended-lambda -Wno-deprecated-gpu-targets")
   string(APPEND CMAKE_CUDA_FLAGS_DEBUG " -O0 -g -pg -G")
 endif()
-
-add_library(alpaka_tutorial INTERFACE)
-target_include_directories(alpaka_tutorial
-                           INTERFACE ${CMAKE_SOURCE_DIR}/include)
-add_library(alpaka_tutorial::alpaka_tutorial ALIAS alpaka_tutorial)
 
 find_package(Boost QUIET CONFIG COMPONENTS atomic)
 if(Boost_FOUND)
